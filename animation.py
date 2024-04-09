@@ -66,6 +66,9 @@ class Animation:
         self._move_x()
         
     def set_marker_colour(self, colour):
+         # Do not update during note transitions, except for ties
+        if np.abs(self.measure_frame - self._get_note_frames()) <= 4 and not self.isTied:
+            return
         self.marker.fill(colour)
 
     def get_current_note_hz(self):

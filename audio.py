@@ -89,17 +89,15 @@ class AudioInput:
         if volume > SILENCE_THRESHOLD and expected_pitch != 0:
             f0 = self._get_fundamental(data, expected_pitch)
        
-        if f0 == 0:
-            volume = 0
+        # if f0 == 0:
+        #     volume = 0
         
         self.data_q.put((f0, expected_pitch, volume))
         return
 
     def _get_fundamental(self, data, expected_pitch):
-        # fmin = expected_pitch/1.1
-        # fmax = expected_pitch*1.1
-        fmin = expected_pitch/2
-        fmax = expected_pitch*2
+        fmin = expected_pitch/1.5
+        fmax = expected_pitch*1.5
         f0, vf, vp = pyin(y=data, sr=SAMPLE_RATE/DOWNSAMPLE, fmin=fmin, fmax=fmax, frame_length=len(data))
 
         f0 = f0[~np.isnan(f0)]

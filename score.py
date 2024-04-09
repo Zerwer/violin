@@ -7,7 +7,9 @@ def plt_data(data):
 
     # Set to 0 if volume is too low
     actual = [x[0] if x[2] > SILENCE_THRESHOLD else 0 for x in data]
+    # shift expected to the right by 1
     expected = [x[1] for x in data]
+    expected = [0] + expected[:-1]
     volume = [x[2] *1000 for x in data]
     
 
@@ -25,16 +27,16 @@ def plt_data(data):
 
     # Slur accuracy
     # find index in expected where x[i] != 0 and x[i] != x[i+1]
-    slur_indices = [i for i in range(len(data) - 1) if data[i][1] != 0 and data[i][1] != data[i + 1][1] and data[i + 1][1] != 0]
-    bow_change_indices = [i for i in range(len(data) - 1) if data[i][1] != 0 and data[i + 1][1] == 0]
+    slur_indices = [i for i in range(len(expected) - 1) if expected[i] != 0 and expected[i] != expected[i + 1] and expected[i + 1] != 0]
+    bow_change_indices = [i for i in range(len(expected) - 1) if expected[i] != 0 and expected[i + 1] == 0]
     
     total_slurs = len(slur_indices)
     correct_slurs = len(slur_indices)
     for slur in slur_indices:
         lower = max(0, slur - 2)
-        upper = min(len(data) - 1, slur + 2)
+        upper = min(len(actual) - 1, slur + 2)
         # check for atleast 2 zero values in the range
-        if len([data[i][0] for i in range(lower, upper + 1) if data[i][0] == 0]) < 2:
+        if len([actual[i] for i in range(lower, upper + 1) if actual[i] == 0]) > 0:
             correct_slurs -= 1
     
     if total_slurs != 0:
@@ -44,10 +46,12 @@ def plt_data(data):
     correct_bow_changes = len(bow_change_indices)
     for bow_change in bow_change_indices:
         lower = max(0, bow_change - 2)
-        upper = min(len(data) - 1, bow_change + 2)
+        upper = min(len(actual) - 1, bow_change + 2)
         # check for zero values in the range
         # Check for at least 2 non-zero values in the range
-        if len([data[i][0] for i in range(lower, upper + 1) if data[i][0] != 0]) < 2:
+        if len([actual[i] for i in range(lower, upper + 1) if actual[i] == 0]) > 0:
+            pass
+        else:
             correct_bow_changes -= 1
         # if 0 not in [data[i][0] for i in range(lower, upper + 1)]:
         #     correct_bow_changes -= 1
